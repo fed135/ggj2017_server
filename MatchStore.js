@@ -34,13 +34,21 @@ function clean(name) {
 	return Promise.resolve();
 }
 
-function _push() {
+function _push(name, ret) {
 	Matches[name] = {
 		players: [],
-		state: 'lobby'
+		state: 'lobby',
+		name
 	};
+
+	ret.resolve(Matches[name]);
+}
+
+function get_or_make(name) {
+	return get(name)
+		.then(null, () => add(name));
 }
 
 /* Exports -------------------------------------------------------------------*/
 
-module.exports = { add, get, clean };
+module.exports = { add, get, clean, get_or_make };

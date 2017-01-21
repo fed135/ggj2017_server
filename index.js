@@ -8,7 +8,6 @@
 
 const Kalm = require('kalm');
 const WS = require('kalm-websocket');
-const Express = require('express');
 const MatchStore = require('./MatchStore');
 
 const lobbyController = require('./lobby');
@@ -23,9 +22,6 @@ const socketApp = new Kalm.Server({
 	adapter: 'ws',
 	port: 9000
 });
-
-const webApp = Express();
-webApp.disable('x-powered-by');
 
 /* Game ----------------------------------------------------------------------*/
 
@@ -50,11 +46,3 @@ socketApp.catch((payload, client) => {
 	console.log(client);
 	client.send('errors', 'Unexpected payload');
 });
-
-webApp.post('/', (req, res) => {
-	MatchStore.add(req.body.name)
-		.then(() => res.json('ok'))
-		.catch((err) => res.json(err))
-});
-
-webApp.listen(3000, () => {});

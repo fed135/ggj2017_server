@@ -15,30 +15,49 @@ const MAX_PLAYERS = 8;
 /* Methods -------------------------------------------------------------------*/
 
 function join(packet, reply, channel) {
-	MatchStore.get(packet.match)
+	MatchStore.get_or_make(packet.match)
 		.then((match) => {
-			if (match.state === 'lobby' && match.players.length < MAX_PLAYERS) {
-				match.players.push(channel._client);
+			if (packet.role === 'spectate') {
 				channel._client.match = packet.match;
-				channel._client.on('disconnect', () => {
-					// Remove me from lobby
-					let i = match.players.indexOf(channel._client);
-					if (i > -1) match.players.splice(i, 1);
-					this.broadcast('lobby.update', { 
-						state: match.state, 
-						players: match.players.length 
-					});
-				})
-				reply('ok');
-				this.broadcast('lobby.update', { 
+				reply({
 					state: match.state, 
-					players: match.players.length 
+					players: match.players.length,
+					name: packet.match
 				});
 			}
 			else {
-				reply('nope');
+				if (match.state === 'lobby' && match.players.length < MAX_PLAYERS) {
+					match.players.push(channel._client);
+					channel._client.match = packet.match;
+					channel._client.on('disconnect', () => {
+						// Remove me from lobby
+						let i = match.players.indexOf(channel._client);
+						if (i > -1) match.players.splice(i, 1);
+						publish_update(this, match);
+					})
+					reply({
+						state: match.state, 
+						players: match.players.length,
+						name: packet.match
+					});
+					publish_update(this, match);
+				}
+				else {
+					reply('nope');
+				}
 			}
-		})
+		}, reply);
+}
+
+function publish_update(server, match) {
+	server.connections.forEach((connection) => {
+		if (connection.match === match.name) {
+			connection.send('lobby.update', {
+				state: match.state, 
+				players: match.players.length 
+			});
+		}
+	});
 }
 
 /* Exports -------------------------------------------------------------------*/
