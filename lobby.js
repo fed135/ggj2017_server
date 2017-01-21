@@ -52,10 +52,12 @@ function join(packet, reply, channel) {
 function publish_update(server, match) {
 	server.connections.forEach((connection) => {
 		if (connection.match === match.name) {
-			connection.send('lobby.update', {
-				state: match.state, 
-				players: match.players.length 
-			});
+			if (connection && connection.socket) {
+				connection.send('lobby.update', {
+					state: match.state, 
+					players: match.players.length 
+				});
+			}
 		}
 	});
 }
