@@ -11,6 +11,7 @@ const MatchStore = require('./MatchStore');
 /* Local variables -----------------------------------------------------------*/
 
 const MAX_PLAYERS = 8;
+const GAME_TIMER = 1000 * 60 * 2.5;
 
 /* Methods -------------------------------------------------------------------*/
 
@@ -54,6 +55,8 @@ function start(packet, reply) {
 		.then((match) => {
 			match.state = packet.state;
 			publish_update(this, match);
+			// Kill match after game time
+			setTimeout(() => MatchStore.clean(packet.match), GAME_TIMER);
 		}, reply)
 }
 
