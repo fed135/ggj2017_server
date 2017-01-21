@@ -54,8 +54,8 @@ function join(packet, reply, channel) {
 }
 
 function publish_update(server, match) {
-	server.connections.forEach((connection) => {
-		console.log(connection.match, match)
+	server.connections.forEach((connection, i) => {
+		console.log('client', i,' =>', connection.match, '==' ,match.name)
 		if (connection.match === match.name && connection.socket) {
 			console.log('sending!');
 			connection.send('lobby.update', {
