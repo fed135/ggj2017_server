@@ -55,13 +55,13 @@ function join(packet, reply, channel) {
 
 function publish_update(server, match) {
 	server.connections.forEach((connection) => {
-		if (connection.match === match.name) {
-			if (connection && connection.socket) {
-				connection.send('lobby.update', {
-					state: match.state, 
-					players: match.players.length 
-				});
-			}
+		console.log(connection.match, match)
+		if (connection.match === match.name && connection.socket) {
+			console.log('sending!');
+			connection.send('lobby.update', {
+				state: match.state, 
+				players: match.players.length 
+			});
 		}
 	});
 }
