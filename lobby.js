@@ -33,13 +33,17 @@ function join(packet, reply, channel) {
 						// Remove me from lobby
 						let i = match.players.indexOf(channel._client);
 						if (i > -1) match.players.splice(i, 1);
-						publish_update(this, match);
+						setTimeout(() => {
+							console.log('publishing disconnect');
+							publish_update(this, match);
+						}, 10);
 					})
 					reply({
 						state: match.state, 
 						players: match.players.length,
 						name: packet.match
 					});
+					console.log('publishing connect');
 					publish_update(this, match);
 				}
 				else {
