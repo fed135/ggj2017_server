@@ -22,6 +22,14 @@ function move(packet, reply, channel) {
 	});
 }
 
+function punch(packet, reply, channel) {
+	this.connections.forEach((connection) => {
+		if (connection.match === packet.match && connection.player !== packet.player) {
+			connection.send('player.punch', packet);
+		}
+	});
+}
+
 function spawn(packet, reply, channel) {
 	channel._client.player = packet.player || crypto.randomBytes(20).toString('hex');
 	packet.player = channel._client.player
@@ -35,4 +43,4 @@ function spawn(packet, reply, channel) {
 
 /* Exports -------------------------------------------------------------------*/
 
-module.exports = { spawn, move };
+module.exports = { spawn, punch, move };

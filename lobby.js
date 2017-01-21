@@ -19,6 +19,7 @@ function join(packet, reply, channel) {
 		.then((match) => {
 			if (packet.role === 'spectate') {
 				channel._client.match = packet.match;
+				channel._client.role = 'spectate';
 				reply({
 					state: match.state, 
 					players: match.players.length,
@@ -29,22 +30,17 @@ function join(packet, reply, channel) {
 				if (match.state === 'lobby' && match.players.length < MAX_PLAYERS) {
 					match.players.push(channel._client);
 					channel._client.match = packet.match;
+					channel._client.role = 'play';
 					channel._client.on('disconnect', () => {
 						// Remove me from lobby
 						let i = match.players.indexOf(channel._client);
 						if (i > -1) match.players.splice(i, 1);
 						setTimeout(() => {
-							console.log('publishing disconnect');
 							publish_update(this, match);
 						}, 10);
-					})
-					reply({
-						state: match.state, 
-						players: match.players.length,
-						name: packet.match
 					});
-					console.log('publishing connect');
-					publish_update(this, match);
+					reply({state: 'lobby'});
+					setTimeout(() => publish_update(this, match), 100);
 				}
 				else {
 					reply('nope');
@@ -53,14 +49,23 @@ function join(packet, reply, channel) {
 		}, reply);
 }
 
+function start(packet, reply) {
+	MatchStore.get(packet.match)
+		.then((match) => {
+			match.state = packet.state;
+			publish_update(this, match);
+		}, reply)
+}
+
 function publish_update(server, match) {
+	let players = 0;
 	server.connections.forEach((connection, i) => {
-		console.log('client', i,' =>', connection.match, '==' ,match.name)
 		if (connection.match === match.name && connection.socket) {
-			console.log('sending!');
 			connection.send('lobby.update', {
 				state: match.state, 
-				players: match.players.length 
+				players: match.players.length,
+				name: match.name,
+				color: (connection.role === 'play')?players++:null
 			});
 		}
 	});
@@ -68,4 +73,4 @@ function publish_update(server, match) {
 
 /* Exports -------------------------------------------------------------------*/
 
-module.exports = { join };
+module.exports = { join, start };

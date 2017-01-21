@@ -30,9 +30,17 @@ socketApp.subscribe('lobby.join', lobbyController.join.bind(socketApp), {
 	delay: 0,
 });
 
+socketApp.subscribe('lobby.update', lobbyController.start.bind(socketApp), {
+	delay: 0,
+});
+
 // GAME
 socketApp.subscribe('player.move', gameController.move.bind(socketApp), {
 	delay: 1000/60,
+});
+
+socketApp.subscribe('player.punch', gameController.punch.bind(socketApp), {
+	delay: 1000/30,
 });
 
 socketApp.subscribe('player.spawn', gameController.spawn.bind(socketApp), {
