@@ -56,7 +56,16 @@ function start(packet, reply) {
 			match.state = packet.state;
 			publish_update(this, match);
 			// Kill match after game time
-			setTimeout(() => MatchStore.clean(packet.match), GAME_TIMER);
+			setTimeout(() => {
+				MatchStore.clean(packet.match);
+				this.connections.forEach((connection, i) => {
+					if (connection.match === match.name) {
+						delete connection.match;
+						delete connection.color;
+						delete connection.role;
+					}
+				});
+			}, GAME_TIMER);
 		}, reply)
 }
 
@@ -64,11 +73,12 @@ function publish_update(server, match) {
 	let players = 0;
 	server.connections.forEach((connection, i) => {
 		if (connection.match === match.name && connection.socket) {
+			connection.color = (connection.role === 'play')?players++:null;
 			connection.send('lobby.update', {
 				state: match.state, 
 				players: match.players.length,
 				name: match.name,
-				color: (connection.role === 'play')?players++:null
+				color: connection.color
 			});
 		}
 	});

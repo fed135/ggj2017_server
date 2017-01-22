@@ -40,10 +40,14 @@ socketApp.subscribe('player.move', gameController.move.bind(socketApp), {
 });
 
 socketApp.subscribe('player.punch', gameController.punch.bind(socketApp), {
-	delay: 1000/30,
+	delay: 1000/60,
 });
 
 socketApp.subscribe('player.spawn', gameController.spawn.bind(socketApp), {
+	delay: 0,
+});
+
+socketApp.subscribe('player.vibrate', gameController.spawn.bind(socketApp), {
 	delay: 0,
 });
 
