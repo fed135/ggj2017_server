@@ -65,7 +65,7 @@ function publish_update(server, match) {
 				state: match.state, 
 				players: match.players.length,
 				name: match.name,
-				color: connection.color
+				color: connection.session.color
 			});
 		}
 	});
