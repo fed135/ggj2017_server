@@ -20,8 +20,7 @@ function join(req) {
 		.then((match) => {
 			if (match.state === 'lobby' && match.players.length < MAX_PLAYERS) {
 				match.players.push(req.client);
-				req.client.match = req.session.match;
-				req.client.role = 'play';
+				req.session.match = req.body.match;
 				req.client.on('disconnect', () => {
 					// Remove me from lobby
 					let i = match.players.indexOf(req.client);
@@ -51,7 +50,6 @@ function start(req) {
 					if (connection.session.match === match.name) {
 						delete connection.session.match;
 						delete connection.session.color;
-						delete connection.session.role;
 					}
 				});
 			}, GAME_TIMER);
@@ -62,7 +60,7 @@ function publish_update(server, match) {
 	let players = 0;
 	server.connections.forEach((connection, i) => {
 		if (connection.session.match === match.name && connection.socket) {
-			connection.session.color = (connection.session.role === 'play')?players++:null;
+			connection.session.color = players++;
 			connection.write('lobby.update', {
 				state: match.state, 
 				players: match.players.length,
