@@ -11,22 +11,18 @@ const Matches = {};
 /* Methods -------------------------------------------------------------------*/
 
 function add(name) {
-	const ret = Promise.defer();
-
-	// Check if match exist
-	if (!Matches.hasOwnProperty(name)) _push(name, ret);
-	else ret.reject('Match already exists with that name');
-
-	return ret.promise;
+	return new Promise((resolve, reject) => {
+		// Check if match exist
+		if (!Matches.hasOwnProperty(name)) _push(name, resolve);
+		else return reject('Match already exists with that name');
+	});
 }
 
 function get(name) {
-	const ret = Promise.defer();
-
-	if (Matches.hasOwnProperty(name)) ret.resolve(Matches[name]);
-	else ret.reject('No match with that name'); 
-
-	return ret.promise;
+	return new Promise((resolve, reject) => {
+		if (Matches.hasOwnProperty(name)) resolve(Matches[name]);
+		else reject('No match with that name'); 
+	});
 }
 
 function clean(name) {
@@ -34,14 +30,14 @@ function clean(name) {
 	return Promise.resolve();
 }
 
-function _push(name, ret) {
+function _push(name, callback) {
 	Matches[name] = {
 		players: [],
 		state: 'lobby',
 		name
 	};
 
-	ret.resolve(Matches[name]);
+	callback(Matches[name]);
 }
 
 function get_or_make(name) {

@@ -14,37 +14,37 @@ const MatchStore = require('./MatchStore');
 
 /* Methods -------------------------------------------------------------------*/
 
-function move(packet, reply, channel) {
-	this.connections.forEach((connection) => {
-		if (connection.match === packet.match && connection.role === 'spectate') {
-			connection.send('player.move', packet);
+function move(req) {
+	req.client.server.connections.forEach((connection) => {
+		if (connection.match === req.body.match && req.session.role === 'spectate') {
+			connection.write('player.move', req.body);
 		}
 	});
 }
 
-function punch(packet, reply, channel) {
-	this.connections.forEach((connection) => {
-		if (connection.match === packet.match && connection.role === 'spectate') {
-			connection.send('player.punch', packet);
+function punch(req) {
+	req.client.server.connections.forEach((connection) => {
+		if (connection.match === req.body.match && req.session.role === 'spectate') {
+			connection.write('player.punch', req.body);
 		}
 	});
 }
 
-function spawn(packet, reply, channel) {
-	channel._client.player = packet.player || crypto.randomBytes(20).toString('hex');
-	packet.player = channel._client.player
+function spawn(req) {
+	req.session.player = req.body.player || crypto.randomBytes(20).toString('hex');
+	req.body.player = req.session.player;
 
-	this.connections.forEach((connection) => {
-		if (connection.match === packet.match && connection.role === 'spectate') {
-			connection.send('player.spawn', packet);
+	req.client.server.connections.forEach((connection) => {
+		if (connection.match === req.body.match && req.session.role === 'spectate') {
+			connection.write('player.spawn', req.body);
 		}
 	});
 }
 
-function vibrate(packet, reply, channel) {
-	this.connections.forEach((connection) => {
-		if (connection.match === packet.match && connection.color === packet.color) {
-			connection.send('player.vibrate', packet);
+function vibrate(req) {
+	req.client.server.connections.forEach((connection) => {
+		if (connection.match === req.body.match && connection.color === packet.color) {
+			connection.write('player.vibrate', req.body);
 		}
 	});
 }

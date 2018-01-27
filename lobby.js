@@ -15,66 +15,66 @@ const GAME_TIMER = 1000 * 60 * 2.5;
 
 /* Methods -------------------------------------------------------------------*/
 
-function join(packet, reply, channel) {
-	MatchStore.get_or_make(packet.match)
+function join(req) {
+	MatchStore.get_or_make(req.body.match)
 		.then((match) => {
-			if (packet.role === 'spectate') {
-				channel._client.match = packet.match;
-				channel._client.role = 'spectate';
-				reply({
+			if (req.body.role === 'spectate') {
+				req.client.match = req.body.match;
+				req.client.role = 'spectate';
+				req.reply({
 					state: match.state, 
 					players: match.players.length,
-					name: packet.match
+					name: req.body.match
 				});
 			}
 			else {
 				if (match.state === 'lobby' && match.players.length < MAX_PLAYERS) {
-					match.players.push(channel._client);
-					channel._client.match = packet.match;
-					channel._client.role = 'play';
-					channel._client.on('disconnect', () => {
+					match.players.push(req.client);
+					req.client.match = req.session.match;
+					req.client.role = 'play';
+					req.client.on('disconnect', () => {
 						// Remove me from lobby
-						let i = match.players.indexOf(channel._client);
+						let i = match.players.indexOf(req.client);
 						if (i > -1) match.players.splice(i, 1);
 						setTimeout(() => {
-							publish_update(this, match);
+							publish_update(req.client.server, match);
 						}, 10);
 					});
-					reply({state: 'lobby'});
-					setTimeout(() => publish_update(this, match), 100);
+					req.reply({state: 'lobby'});
+					setTimeout(() => publish_update(req.client.server, match), 100);
 				}
 				else {
-					reply('nope');
+					req.reply('nope');
 				}
 			}
-		}, reply);
+		}, req.reply);
 }
 
-function start(packet, reply) {
-	MatchStore.get(packet.match)
+function start(req) {
+	MatchStore.get(req.body.match)
 		.then((match) => {
-			match.state = packet.state;
-			publish_update(this, match);
+			match.state = req.body.state;
+			publish_update(req.client.server, match);
 			// Kill match after game time
 			setTimeout(() => {
-				MatchStore.clean(packet.match);
-				this.connections.forEach((connection, i) => {
-					if (connection.match === match.name) {
-						delete connection.match;
-						delete connection.color;
-						delete connection.role;
+				MatchStore.clean(req.body.match);
+				req.client.server.connections.forEach((connection, i) => {
+					if (connection.session.match === match.name) {
+						delete connection.session.match;
+						delete connection.session.color;
+						delete connection.session.role;
 					}
 				});
 			}, GAME_TIMER);
-		}, reply)
+		}, req.reply)
 }
 
 function publish_update(server, match) {
 	let players = 0;
 	server.connections.forEach((connection, i) => {
-		if (connection.match === match.name && connection.socket) {
-			connection.color = (connection.role === 'play')?players++:null;
-			connection.send('lobby.update', {
+		if (connection.session.match === match.name && connection.socket) {
+			connection.session.color = (connection.session.role === 'play')?players++:null;
+			connection.write('lobby.update', {
 				state: match.state, 
 				players: match.players.length,
 				name: match.name,

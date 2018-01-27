@@ -25,35 +25,17 @@ const socketApp = Kalm.listen({
 /* Game ----------------------------------------------------------------------*/
 
 // LOBBY
-socketApp.subscribe('lobby.join', lobbyController.join.bind(socketApp), {
-	delay: 0,
-});
+socketApp.on('connection', (client) => { 
+	client.subscribe('lobby.join', lobbyController.join);
 
-socketApp.subscribe('lobby.update', lobbyController.start.bind(socketApp), {
-	delay: 0,
-});
+	client.subscribe('lobby.update', lobbyController.start);
 
-// GAME
-socketApp.subscribe('player.move', gameController.move.bind(socketApp), {
-	delay: 1000/60,
-});
+	// GAME
+	client.subscribe('player.move', gameController.move);
 
-socketApp.subscribe('player.punch', gameController.punch.bind(socketApp), {
-	delay: 1000/60,
-});
+	client.subscribe('player.punch', gameController.punch);
 
-socketApp.subscribe('player.spawn', gameController.spawn.bind(socketApp), {
-	delay: 0,
-});
+	client.subscribe('player.spawn', gameController.spawn);
 
-socketApp.subscribe('player.vibrate', gameController.vibrate.bind(socketApp), {
-	delay: 0,
-});
-
-// Others
-socketApp.catch((payload, client) => {
-	// TODO: ONLY accept during DEV! Make sure this is turned off in prod  
-	console.log('Unexpected payload:', payload);
-	console.log(client);
-	client.send('errors', 'Unexpected payload');
+	client.subscribe('player.vibrate', gameController.vibrate);
 });
