@@ -18,7 +18,7 @@ const gameController = require('./game');
 const socketApp = Kalm.listen({
 	socketTimeout: 5 * 60 * 1000,
 	transport: WS,
-	port: 8020,
+	port: 9000,
 	profile: { tick: 5 }
 });
 
