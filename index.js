@@ -15,12 +15,11 @@ const gameController = require('./game');
 
 /* Init ----------------------------------------------------------------------*/
 
-Kalm.adapters.register('ws', WS);
-
-const socketApp = new Kalm.Server({
+const socketApp = Kalm.listen({
 	socketTimeout: 5 * 60 * 1000,
-	adapter: 'ws',
-	port: 9000
+	transport: WS,
+	port: 9000,
+	profile: { tick: 5 }
 });
 
 /* Game ----------------------------------------------------------------------*/
@@ -47,7 +46,7 @@ socketApp.subscribe('player.spawn', gameController.spawn.bind(socketApp), {
 	delay: 0,
 });
 
-socketApp.subscribe('player.vibrate', gameController.spawn.bind(socketApp), {
+socketApp.subscribe('player.vibrate', gameController.vibrate.bind(socketApp), {
 	delay: 0,
 });
 

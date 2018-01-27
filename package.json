@@ -10,7 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "kalm-websocket": "^2.0.0",
-    "kalm": "^1.4.0"
+    "kalm-websocket": "^3.3.0",
+    "kalm": "^2.5.0"
   }
 }
