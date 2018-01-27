@@ -16,7 +16,6 @@ const GAME_TIMER = 1000 * 60 * 2.5;
 /* Methods -------------------------------------------------------------------*/
 
 function join(req) {
-	console.log(req);
 	MatchStore.get_or_make(req.body.match)
 		.then((match) => {
 			if (match.state === 'lobby' && match.players.length < MAX_PLAYERS) {
