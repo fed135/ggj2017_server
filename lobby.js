@@ -16,36 +16,26 @@ const GAME_TIMER = 1000 * 60 * 2.5;
 /* Methods -------------------------------------------------------------------*/
 
 function join(req) {
+	console.log(req);
 	MatchStore.get_or_make(req.body.match)
 		.then((match) => {
-			if (req.body.role === 'spectate') {
-				req.client.match = req.body.match;
-				req.client.role = 'spectate';
-				req.reply({
-					state: match.state, 
-					players: match.players.length,
-					name: req.body.match
+			if (match.state === 'lobby' && match.players.length < MAX_PLAYERS) {
+				match.players.push(req.client);
+				req.client.match = req.session.match;
+				req.client.role = 'play';
+				req.client.on('disconnect', () => {
+					// Remove me from lobby
+					let i = match.players.indexOf(req.client);
+					if (i > -1) match.players.splice(i, 1);
+					setTimeout(() => {
+						publish_update(req.client.server, match);
+					}, 10);
 				});
+				req.reply({state: 'lobby'});
+				setTimeout(() => publish_update(req.client.server, match), 100);
 			}
 			else {
-				if (match.state === 'lobby' && match.players.length < MAX_PLAYERS) {
-					match.players.push(req.client);
-					req.client.match = req.session.match;
-					req.client.role = 'play';
-					req.client.on('disconnect', () => {
-						// Remove me from lobby
-						let i = match.players.indexOf(req.client);
-						if (i > -1) match.players.splice(i, 1);
-						setTimeout(() => {
-							publish_update(req.client.server, match);
-						}, 10);
-					});
-					req.reply({state: 'lobby'});
-					setTimeout(() => publish_update(req.client.server, match), 100);
-				}
-				else {
-					req.reply('nope');
-				}
+				req.reply('nope');
 			}
 		}, req.reply);
 }
