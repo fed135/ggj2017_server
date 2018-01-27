@@ -30,7 +30,7 @@ function join(req) {
 					}, 10);
 				});
 				req.reply({state: 'lobby'});
-				setTimeout(() => publish_update(req.client.server, match), 100);
+				setTimeout(() => publish_update(req.client.server, match), 500);
 			}
 			else {
 				req.reply('nope');
