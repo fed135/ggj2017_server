@@ -7,7 +7,8 @@
 /* Requires ------------------------------------------------------------------*/
 
 const Kalm = require('kalm');
-const WS = require('kalm-websocket');
+const wss = require('kalm-secure-websocket');
+const fs = require('fs');
 const MatchStore = require('./MatchStore');
 
 const lobbyController = require('./lobby');
@@ -17,9 +18,13 @@ const gameController = require('./game');
 
 const socketApp = Kalm.listen({
 	socketTimeout: 5 * 60 * 1000,
-	transport: WS,
+	transport: wss,
 	port: 9000,
-	profile: { tick: 5 }
+	profile: { tick: 5 },
+	ssl: {
+		key: fs.readFileSync('./ssl/test_key.pem'),
+		cert: fs.readFileSync('./ssl/test_cert.pem'),
+	}
 });
 
 /* Game ----------------------------------------------------------------------*/
