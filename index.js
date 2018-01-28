@@ -22,8 +22,8 @@ const socketApp = Kalm.listen({
 	port: 9000,
 	profile: { tick: 5 },
 	ssl: {
-		key: fs.readFileSync('./ssl/test_key.pem'),
-		cert: fs.readFileSync('./ssl/test_cert.pem'),
+		key: fs.readFileSync('./ssl/privkey.pem'),
+		cert: fs.readFileSync('./ssl/cert.pem'),
 	}
 });
 
